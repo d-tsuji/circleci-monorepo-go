@@ -1,5 +1,6 @@
 package common
 
-func Mul(a ,b int) int {
+// Mul is ...
+func Mul(a, b int) int {
 	return a * b
 }
