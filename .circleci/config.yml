@@ -1,0 +1,39 @@
+version: 2.1
+
+workflows:
+  workflow:
+    jobs:
+      - test:
+          name: Test Common
+          base-dir: /go/src/github.com/d-tsuji/circleci-monorepo-go/common
+      - test:
+          name: Test Service1
+          base-dir: /go/src/github.com/d-tsuji/circleci-monorepo-go/service1
+      - test:
+          name: Test Service2
+          base-dir: /go/src/github.com/d-tsuji/circleci-monorepo-go/service2
+
+jobs:
+  test:
+    parameters:
+      base-dir:
+        type: string
+
+    docker:
+      - image: circleci/golang
+
+    working_directory: <<parameters.base-dir>>
+    environment:
+      - GO111MODULE: "on"
+    steps:
+      - checkout:
+          path: /go/src/github.com/d-tsuji/circleci-monorepo-go
+      - run:
+          name: Install GolangCI-Lint
+          command: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.30.0
+      - run:
+          name: Run GolangCI-Lint
+          command: ./bin/golangci-lint run --tests --disable-all --enable=govet --enable=errcheck --enable=staticcheck
+      - run:
+          name: Run all unit tests
+          command: make test
